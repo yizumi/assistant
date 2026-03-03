@@ -17,7 +17,8 @@ assistant/
 │   ├── gmail/                   # Gmail API 連携スクリプト（OAuth + メール取得）
 │   │   ├── config.ts            # 設定管理・トークンリフレッシュ
 │   │   ├── gmail-accounts-add.ts # OAuth アカウント追加（ブラウザ認証フロー）
-│   │   └── gmail-pull.ts        # メッセージ取得・スパム分類・インデックス構築
+│   │   ├── gmail-pull.ts        # 増分メール取得（ローカル最新日以降）
+│   │   └── gmail-backfill.ts    # 一括メール取得（過去6ヶ月 or 日付範囲指定）
 │   └── waroom/                  # Waroom インシデント取得スクリプト・設定
 │       ├── waroom-download.sh   # MCP 経由でインシデントをダウンロード
 │       └── .env                 # WAROOM_API_KEY（git 管理外）
@@ -42,8 +43,11 @@ assistant/
 # Gmail アカウントの OAuth 認証追加
 pnpm gmail:accounts:add <email>
 
-# Gmail メッセージの取得（過去6ヶ月分）
+# Gmail メッセージの増分取得（ローカル最新日以降の新着のみ）
 pnpm gmail:pull <email>
+
+# Gmail メッセージの一括取得（過去6ヶ月分、日付範囲指定可）
+pnpm gmail:backfill <email> [--after:yyyy-MM-dd] [--before:yyyy-MM-dd]
 
 # Waroom インシデントの月次ダウンロード
 ./src/waroom/waroom-download.sh YYYY-MM

@@ -23,11 +23,18 @@ No OAuth changes needed — Gemini uses API keys, not OAuth. The Gmail API scope
 # Connect a Gmail account (opens browser for OAuth consent)
 pnpm gmail:accounts:add user@gmail.com
 
-# Download messages (last 6 months, with optional spam filtering)
+# Incremental pull (fetches only messages newer than latest local data)
 pnpm gmail:pull user@gmail.com
+
+# Backfill (bulk download, last 6 months or custom date range)
+pnpm gmail:backfill user@gmail.com
+pnpm gmail:backfill user@gmail.com --after:2026-01-01 --before:2026-02-01
 
 # Unblock a sender (move from blockedSenders to approvedSenders and backfill messages)
 pnpm gmail:unblock user@gmail.com sender@example.com
+
+# Block a sender (move from approvedSenders to blockedSenders and delete their messages)
+pnpm gmail:block user@gmail.com sender@example.com
 ```
 
 ## Config
@@ -51,8 +58,10 @@ pnpm gmail:unblock user@gmail.com sender@example.com
 - `src/gmail/config.ts` — Shared types and helpers (config I/O, token refresh)
 - `src/gmail/gmail-api.ts` — Shared Gmail API helpers (fetch, message I/O, index builder, types)
 - `src/gmail/gmail-accounts-add.ts` — OAuth account connection with inline HTTP callback server
-- `src/gmail/gmail-pull.ts` — Message download (list, batch download, classify, index)
+- `src/gmail/gmail-pull.ts` — Incremental message download (fetches messages newer than latest local date)
+- `src/gmail/gmail-backfill.ts` — Bulk message download (list by date range, batch download, classify, index)
 - `src/gmail/gmail-unblock.ts` — Unblock a sender (move from blocked→approved, backfill messages)
+- `src/gmail/gmail-block.ts` — Block a sender (move from approved→blocked, delete their messages)
 
 ## Output
 
@@ -60,8 +69,11 @@ Messages are saved to `output/gmail/{email}/yyyy-MM-dd/{messageId}.json` with an
 
 ## Behavior
 
-### Date filter
-Only messages from the last 6 months are fetched (via Gmail API `q=after:YYYY/MM/DD`).
+### Incremental pull (`gmail:pull`)
+Detects the latest local date directory in `output/gmail/{email}/` and fetches only messages after that date. Requires at least one prior `gmail:backfill` run. Duplicates are skipped via the existing `messageExists` check.
+
+### Backfill (`gmail:backfill`)
+Fetches messages from the last 6 months by default (via Gmail API `q=after:YYYY/MM/DD`). Supports `--after` and `--before` flags for custom date ranges.
 
 ### Batch processing
 Messages are downloaded in batches of 100. Token is refreshed before each batch.
