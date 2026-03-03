@@ -25,6 +25,9 @@ pnpm gmail:accounts:add user@gmail.com
 
 # Download messages (last 6 months, with optional spam filtering)
 pnpm gmail:pull user@gmail.com
+
+# Unblock a sender (move from blockedSenders to approvedSenders and backfill messages)
+pnpm gmail:unblock user@gmail.com sender@example.com
 ```
 
 ## Config
@@ -46,8 +49,10 @@ pnpm gmail:pull user@gmail.com
 ## File Structure
 
 - `src/gmail/config.ts` — Shared types and helpers (config I/O, token refresh)
+- `src/gmail/gmail-api.ts` — Shared Gmail API helpers (fetch, message I/O, index builder, types)
 - `src/gmail/gmail-accounts-add.ts` — OAuth account connection with inline HTTP callback server
 - `src/gmail/gmail-pull.ts` — Message download (list, batch download, classify, index)
+- `src/gmail/gmail-unblock.ts` — Unblock a sender (move from blocked→approved, backfill messages)
 
 ## Output
 
