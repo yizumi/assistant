@@ -10,7 +10,8 @@
     "gmail:pull": "tsx src/gmail/gmail-pull.ts",
     "gmail:backfill": "tsx src/gmail/gmail-backfill.ts",
     "gmail:unblock": "tsx src/gmail/gmail-unblock.ts",
-    "gmail:block": "tsx src/gmail/gmail-block.ts"
+    "gmail:block": "tsx src/gmail/gmail-block.ts",
+    "waroom:pull": "tsx src/waroom/waroom-pull.ts"
   },
   "keywords": [],
   "author": "",
