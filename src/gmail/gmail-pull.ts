@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
-import { loadConfig, findAccount, refreshAccessToken } from "./config.js";
+import { loadConfig, findAccount, refreshAccessToken, saveConfig } from "./config.js";
 import type { Config, Account } from "./config.js";
 import {
   PROJECT_ROOT, GMAIL_API,
@@ -20,7 +20,10 @@ async function main() {
     process.exit(1);
   }
 
-  const latestDate = getLatestLocalDate(email);
+  const config = loadConfig();
+  const account = findAccount(config, email);
+
+  const latestDate = account.lastCheckedAt ?? getLatestLocalDate(email);
   if (!latestDate) {
     console.error(`No local emails found for ${email}.`);
     console.error("Run `pnpm gmail:backfill <email>` first.");
@@ -28,9 +31,6 @@ async function main() {
   }
 
   console.log(`Incremental pull: fetching messages after ${latestDate}`);
-
-  const config = loadConfig();
-  const account = findAccount(config, email);
 
   await refreshAccessToken(config, account);
 
@@ -40,6 +40,8 @@ async function main() {
 
   if (messageIds.length === 0) {
     console.log("No new messages. Done!");
+    account.lastCheckedAt = new Date().toISOString().slice(0, 10);
+    saveConfig(config);
     return;
   }
 
@@ -51,6 +53,10 @@ async function main() {
 
   // Phase 3: Build index
   buildIndex(email);
+
+  // Save lastCheckedAt so next pull starts from today
+  account.lastCheckedAt = new Date().toISOString().slice(0, 10);
+  saveConfig(config);
 
   console.log("Done!");
 }

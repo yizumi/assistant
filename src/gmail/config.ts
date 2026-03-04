@@ -10,6 +10,7 @@ export interface Account {
   accessTokenExpiresAt: string; // ISO 8601
   blockedSenders?: string[];     // emails classified as spam/mailing-list
   approvedSenders?: string[];    // emails classified as legitimate
+  lastCheckedAt?: string;        // YYYY-MM-DD — last successful pull date
 }
 
 export interface Config {

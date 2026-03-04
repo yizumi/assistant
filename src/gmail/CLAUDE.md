@@ -52,6 +52,7 @@ pnpm gmail:block user@gmail.com sender@example.com
 | `accessTokenExpiresAt` | account | Token expiry (auto-managed) |
 | `blockedSenders` | account | Auto-populated. Senders classified as spam/mailing-list |
 | `approvedSenders` | account | Auto-populated. Senders classified as legitimate |
+| `lastCheckedAt` | account | Auto-populated. YYYY-MM-DD of last successful `gmail:pull` |
 
 ## File Structure
 
@@ -70,7 +71,7 @@ Messages are saved to `output/gmail/{email}/yyyy-MM-dd/{messageId}.json` with an
 ## Behavior
 
 ### Incremental pull (`gmail:pull`)
-Detects the latest local date directory in `output/gmail/{email}/` and fetches only messages after that date. Requires at least one prior `gmail:backfill` run. Duplicates are skipped via the existing `messageExists` check.
+Uses `lastCheckedAt` from the account config to determine the start date; falls back to scanning `output/gmail/{email}/` for the latest date directory if not set. After a successful pull, `lastCheckedAt` is updated to today. Requires at least one prior `gmail:backfill` run. Duplicates are skipped via the existing `messageExists` check.
 
 ### Backfill (`gmail:backfill`)
 Fetches messages from the last 6 months by default (via Gmail API `q=after:YYYY/MM/DD`). Supports `--after` and `--before` flags for custom date ranges.
