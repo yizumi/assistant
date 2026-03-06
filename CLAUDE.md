@@ -19,6 +19,11 @@ assistant/
 │   │   ├── gmail-accounts-add.ts # OAuth アカウント追加（ブラウザ認証フロー）
 │   │   ├── gmail-pull.ts        # 増分メール取得（ローカル最新日以降）
 │   │   └── gmail-backfill.ts    # 一括メール取得（過去6ヶ月 or 日付範囲指定）
+│   ├── slack/                   # Slack API 連携スクリプト（OAuth + メッセージ取得）
+│   │   ├── config.ts            # 設定管理（ワークスペース別）
+│   │   ├── slack-api.ts         # Slack API ヘルパー（fetch、リトライ、ユーザー解決）
+│   │   ├── slack-integrate.ts   # OAuth ワークスペース追加（ブラウザ認証フロー）
+│   │   └── slack-pull.ts        # 増分メッセージ取得（メンション + DM）
 │   └── waroom/                  # Waroom インシデント取得スクリプト・設定
 │       ├── waroom-download.sh   # MCP 経由でインシデントをダウンロード
 │       └── .env                 # WAROOM_API_KEY（git 管理外）
@@ -29,9 +34,13 @@ assistant/
 │   └── YYYYMMDD-<ProjectName>/  # 日付プレフィクス付きプロジェクトディレクトリ
 ├── output/                      # スクリプト出力先
 │   ├── gmail/<email>/           # メールデータ（日別 JSON + index.json）
+│   ├── slack/<team-id>/         # Slack メッセージ（メンション + DM + index.json）
 │   └── waroom/YYYY-MM/          # Waroom インシデント JSON データ
 ├── .config/                     # 設定ファイル（git 管理外）
-│   └── gmail/config.json        # GCP OAuth 認証情報・アカウント設定
+│   ├── gmail/config.json        # GCP OAuth 認証情報・アカウント設定
+│   └── slack/                   # Slack 認証情報
+│       ├── config.json          # Slack App クライアント ID/Secret
+│       └── <team-id>.json       # ワークスペース別トークン・設定
 ├── package.json
 ├── tsconfig.json
 └── pnpm-lock.yaml
@@ -49,6 +58,12 @@ pnpm gmail:pull <email>
 # Gmail メッセージの一括取得（過去6ヶ月分、日付範囲指定可）
 pnpm gmail:backfill <email> [--after:yyyy-MM-dd] [--before:yyyy-MM-dd]
 
+# Slack ワークスペースの OAuth 認証追加
+pnpm slack:integrate
+
+# Slack メッセージの増分取得（メンション + DM）
+pnpm slack:pull <team-id-or-name>
+
 # Waroom インシデントの月次ダウンロード
 ./src/waroom/waroom-download.sh YYYY-MM
 ```
@@ -56,6 +71,8 @@ pnpm gmail:backfill <email> [--after:yyyy-MM-dd] [--before:yyyy-MM-dd]
 ## Configuration
 
 - `.config/gmail/config.json` — GCP OAuth クライアント ID/Secret、Gemini API キー（任意）、アカウント情報
+- `.config/slack/config.json` — Slack App クライアント ID/Secret
+- `.config/slack/<team-id>.json` — ワークスペース別ユーザートークン・設定
 - `src/waroom/.env` — `WAROOM_API_KEY`
 
 これらのファイルには認証情報が含まれるため、絶対にコミットしないこと。

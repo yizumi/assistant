@@ -11,6 +11,10 @@
     "gmail:backfill": "tsx src/gmail/gmail-backfill.ts",
     "gmail:unblock": "tsx src/gmail/gmail-unblock.ts",
     "gmail:block": "tsx src/gmail/gmail-block.ts",
+    "slack:integrate": "tsx src/slack/slack-integrate.ts",
+    "slack:analyze": "tsx src/slack/slack-analyze.ts",
+    "slack:pull": "tsx src/slack/slack-pull.ts",
+    "slack:leave": "tsx src/slack/slack-leave.ts",
     "waroom:pull": "tsx src/waroom/waroom-pull.ts"
   },
   "keywords": [],
